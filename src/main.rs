@@ -1,8 +1,11 @@
+use bet::Bet;
 use deck::{Deck, Hand, Bets, Cycler};
+use lucas::Lucas;
 use rand::thread_rng;
 
 mod deck;
 mod lucas;
+mod bet;
 
 fn main() {
 
@@ -37,9 +40,11 @@ fn main() {
         }
     }
 
+    let mut players: Vec<Box<dyn Bet>> = Vec::new();
+
     current_player.reset();
     for i in &mut current_player {
-
+        players[i].bet();
     }
     
     
