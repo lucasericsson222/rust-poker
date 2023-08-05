@@ -66,18 +66,36 @@ impl Default for Hand {
 #[derive(Debug)]
 pub struct Bets {
     current_turn: usize,
-    bets: Vec<Vec<i32>>
+    bets: Vec<Vec<usize>>
 }
 
 impl Bets {
-    pub fn push(&mut self, bet: i32) {
+    pub fn push(&mut self, bet: usize) {
         self.bets[self.current_turn].push(bet);
     }
 
     pub fn increment_turn(&mut self) {
+        self.bets.push(vec![]);
         self.current_turn += 1;
     }
+   
+    pub fn set(&mut self, index: usize, bet: usize) {
+        self.bets[self.current_turn][index] = bet;
+    }
+
+    pub fn get_current(&self, index: usize) -> Option<&usize> {
+        self.bets[self.current_turn].get(index)
+    }
     
+    pub fn get_max_bet(&self) -> usize {
+        let mut max_value = 0;
+        for bet in &self.bets[self.current_turn] {
+            if bet > &max_value {
+                max_value = *bet;
+            }
+        }
+        return max_value;
+    }
 }
 
 impl Default for Bets {
@@ -107,6 +125,9 @@ impl Cycler {
     pub fn reset(&mut self) {
         self.current_index = self.start_index;
         self.stop = false;
+    }
+    pub fn loop_index(index: i32, max_index: usize) -> usize {
+        return (index % max_index as i32) as usize;
     }
 }
 
