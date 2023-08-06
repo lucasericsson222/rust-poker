@@ -38,10 +38,10 @@ impl Default for Deck {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Card {
-    value: i32,
-    suite: String,
+    pub value: i32,
+    pub suite: String,
 }
 
 #[derive(Debug)]
@@ -63,7 +63,7 @@ impl Default for Hand {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Bets {
     current_turn: usize,
     bets: Vec<Vec<usize>>

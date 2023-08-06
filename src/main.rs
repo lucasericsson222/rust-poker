@@ -1,11 +1,12 @@
 use bet::Bet;
-use deck::{Deck, Hand, Bets, Cycler};
+use deck::{Deck, Hand, Bets, Cycler, Card};
 use lucas::Lucas;
 use rand::{thread_rng, rngs::ThreadRng};
 
 mod deck;
 mod lucas;
 mod bet;
+mod utility;
 
 fn main() {
 
@@ -41,22 +42,23 @@ fn main() {
     players.push(Box::new(Lucas {}));
 
     let mut folds = vec![false];
+    let mut board_cards: Vec<Card> = vec![];
 
     bets = dbg!(bets);
 
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng);
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
    
-    deal_card(&mut current_player, &mut hands, &mut mydeck);
+    board_cards.push(mydeck.draw_card());
+    
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
 
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng);
+    board_cards.push(mydeck.draw_card());
 
-    deal_card(&mut current_player, &mut hands, &mut mydeck);
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
 
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng);
+    board_cards.push(mydeck.draw_card());
 
-    deal_card(&mut current_player, &mut hands, &mut mydeck);
-
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng);
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
 }
 
 fn deal_card(
@@ -80,11 +82,12 @@ fn commence_betting(
     players: &mut Vec<Box<dyn Bet>>,
     bets: &mut Bets,
     rng: &mut ThreadRng,
+    board_cards: &Vec<Card>, 
 ) {
-    let mut raise = bet_round(current_player, folds, players, bets, rng);
+    let mut raise = bet_round(current_player, folds, players, bets, rng, board_cards);
 
     while raise {
-        raise = bet_round(current_player, folds, players, bets, rng);
+        raise = bet_round(current_player, folds, players, bets, rng, board_cards);
     }
 
     bets.increment_turn();
@@ -99,16 +102,18 @@ fn bet_round(
     players: &mut Vec<Box<dyn Bet>>,
     bets: &mut Bets,
     rng: &mut ThreadRng,
+    board_cards: &Vec<Card>,
 ) -> bool {
     let mut raise = false;
     current_player.reset();
+
     for i in current_player {
 
         if folds[i] {
             continue;
         }
 
-        let maybe_bet = players[i].bet(rng);
+        let maybe_bet = players[i].bet(rng, i, folds.clone(), bets.clone(), board_cards.clone());
 
         if let Some(mut bet) = maybe_bet {
 
@@ -131,8 +136,4 @@ fn bet_round(
         }
     }
     return raise;
-}
-
-fn raise() {
-    panic!();
 }
