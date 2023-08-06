@@ -1,4 +1,4 @@
-use crate::bet;
+use crate::{bet, deck::{Card, Bets}};
 
 use bet::Bet;
 use rand::{rngs::ThreadRng, Rng};
@@ -6,7 +6,14 @@ use rand::{rngs::ThreadRng, Rng};
 pub struct Lucas {}
 
 impl Bet for Lucas {
-    fn bet(&mut self, rng: &mut ThreadRng) -> Option<usize> {
+    fn bet(
+        &mut self, 
+        rng: &mut ThreadRng,
+        player_index: usize, 
+        folds: Vec<bool>, 
+        bets: Bets,
+        board_cards: Vec<Card>, 
+    ) -> Option<usize> {
         let fold = false; 
 
         if fold {

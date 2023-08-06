@@ -1,3 +1,5 @@
+use std::cmp;
+
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
 
@@ -42,6 +44,27 @@ impl Default for Deck {
 pub struct Card {
     pub value: i32,
     pub suite: String,
+}
+
+impl Ord for Card {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        return self.value.cmp(&other.value);
+    }
+}
+
+impl PartialOrd for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        return Some(self.value.cmp(&other.value)); 
+    }
+}
+
+impl Eq for Card { 
+}
+
+impl PartialEq for Card {
+    fn eq(&self, other: &Self) -> bool {
+        return self.value.eq(&other.value);
+    }
 }
 
 #[derive(Debug)]
