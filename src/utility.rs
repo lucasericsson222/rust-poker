@@ -8,14 +8,20 @@ pub fn calc_hand_value(
 ) -> i32 {
     let mut hand = player_cards.clone();
     hand.append(&mut board_cards.clone());  
+
+    println!("{:#?}", &hand);
+
     let mut counts: HashMap<i32, i32> = HashMap::new();
 
     for card in &hand {
         if !counts.contains_key(&card.value) {
             counts.insert(card.value, 1);
+        } else {
+            *counts.get_mut(&card.value).unwrap() += 1;
         }
-        *counts.get_mut(&card.value).unwrap() += 1;
     }
+
+    println!("{:#?}", &counts);
 
     if let Some(list) = has_quadruple(&counts) {
         return 800 + list.first().unwrap();
@@ -144,7 +150,7 @@ pub fn has_two_pair(counts: &HashMap<i32, i32>) -> Option<Vec<i32>> {
             found.push(*key); 
         }
     }
-    if found.len() == 2 {
+    if found.len() >= 2 {
         return Some(found);
     }
     return None;

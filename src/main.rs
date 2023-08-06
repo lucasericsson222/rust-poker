@@ -1,7 +1,10 @@
+use std::iter::Enumerate;
+
 use bet::Bet;
 use deck::{Deck, Hand, Bets, Cycler, Card};
 use lucas::Lucas;
 use rand::{thread_rng, rngs::ThreadRng};
+use utility::calc_hand_value;
 
 mod deck;
 mod lucas;
@@ -43,22 +46,50 @@ fn main() {
 
     let mut folds = vec![false];
     let mut board_cards: Vec<Card> = vec![];
+    let mut money = vec![];
+
+    for _ in &hands {
+        money.push(100); 
+    }
 
     bets = dbg!(bets);
 
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards, &mut money);
    
     board_cards.push(mydeck.draw_card());
+    board_cards.push(mydeck.draw_card());
+    board_cards.push(mydeck.draw_card());
     
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards, &mut money);
 
     board_cards.push(mydeck.draw_card());
 
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards, &mut money);
 
     board_cards.push(mydeck.draw_card());
 
-    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards);
+    commence_betting(&mut current_player, &mut folds, &mut players, &mut bets, &mut rng, &board_cards, &mut money);
+
+
+    let mut scores = vec![];
+    for hand in &mut hands {
+        scores.push(calc_hand_value(&hand.hand, &board_cards)); 
+    }
+
+    let mut highest = 0;
+    let mut highest_index = 0;
+    for (i, score) in scores.iter().enumerate() {
+        if *score > highest {
+            highest = *score;
+            highest_index = i;
+        }
+    }
+
+    println!("Player {0} won the game with the hand score of {1}", highest_index, highest);
+    println!("Their hand was");
+    println!("{:#?}", hands[highest_index]);
+    println!("The cards in play were");
+    println!("{:#?}", board_cards);
 }
 
 fn deal_card(
@@ -83,16 +114,26 @@ fn commence_betting(
     bets: &mut Bets,
     rng: &mut ThreadRng,
     board_cards: &Vec<Card>, 
+    money: &mut Vec<i32>,
 ) {
-    let mut raise = bet_round(current_player, folds, players, bets, rng, board_cards);
+    let mut raise = bet_round(current_player, folds, players, bets, rng, board_cards, money);
 
     while raise {
-        raise = bet_round(current_player, folds, players, bets, rng, board_cards);
+        raise = bet_round(current_player, folds, players, bets, rng, board_cards, money);
     }
 
+    modify_money(bets, money);
+
     bets.increment_turn();
+
     for _ in 0..players.len() {
         bets.push(0);
+    }
+}
+
+fn modify_money(bets: &mut Bets, money: &mut Vec<i32>,) {
+    for (i, player_money) in money.clone().iter_mut().enumerate() {
+        *player_money -= *bets.get_current(i).unwrap() as i32;
     }
 }
 
@@ -103,6 +144,7 @@ fn bet_round(
     bets: &mut Bets,
     rng: &mut ThreadRng,
     board_cards: &Vec<Card>,
+    money: &Vec<i32>,
 ) -> bool {
     let mut raise = false;
     current_player.reset();
@@ -119,16 +161,24 @@ fn bet_round(
 
             let previous_bet = bets.get_max_bet();
 
+            if bet > 10000 {
+                bet = 10000;
+            }
+            if bet as i32 > money[i] {
+                bet = money[i] as usize;
+                println!("Player {i} goes all in");
+            } else {
+                if bet < previous_bet {
+                    bet = previous_bet;
+                    println!("Player {0} called", i);
+                }
+            }
             if bet > previous_bet {
                 raise = true; 
                 println!("Player {0} bet {1}", i, &bet); 
             }
-            if bet < previous_bet {
-                bet = previous_bet;
-                println!("Player {0} called", i);
-            }
 
-            bets.set(i, bet.clone());
+            bets.set(i, bet);
             
         } else {
             println!("Player {0} folded", i);

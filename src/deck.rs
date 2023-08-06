@@ -69,7 +69,7 @@ impl PartialEq for Card {
 
 #[derive(Debug)]
 pub struct Hand {
-    hand: Vec<Card>,
+    pub hand: Vec<Card>,
 }
 
 impl Hand {
