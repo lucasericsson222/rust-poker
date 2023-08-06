@@ -123,7 +123,6 @@ mod tests {
 
         counts.insert(2, 2);
         counts.insert(3, 1);
-        counts.insert(7, 1);
         counts.insert(11, 1);
         counts.insert(14, 1);
         counts.insert(4, 1);
@@ -155,10 +154,8 @@ mod tests {
 
         counts.insert(2, 2);
         counts.insert(3, 1);
-        counts.insert(7, 1);
         counts.insert(11, 1);
         counts.insert(14, 2);
-        counts.insert(4, 1);
         counts.insert(8, 1);
         
         assert_eq!(has_pair(&counts).unwrap(), 14);
@@ -171,8 +168,6 @@ mod tests {
         counts.insert(2, 1);
         counts.insert(3, 3);
         counts.insert(7, 1);
-        counts.insert(11, 1);
-        counts.insert(14, 1);
         counts.insert(4, 1);
         counts.insert(8, 1);
         
@@ -200,14 +195,90 @@ mod tests {
 
         let mut counts: HashMap<i32, i32> = HashMap::new();
 
-        counts.insert(2, 1);
-        counts.insert(3, 1);
         counts.insert(7, 3);
         counts.insert(11, 3);
+        counts.insert(14, 1);
+        
+        assert_eq!(has_triple(&counts).unwrap(), 11);
+    }
+
+    #[test]
+    fn has_quadruple_returns_true_when_quadruple() {
+        let mut counts: HashMap<i32, i32> = HashMap::new();
+
+        counts.insert(2, 1);
+        counts.insert(3, 1);
+        counts.insert(7, 4);
+        counts.insert(8, 1);
+        
+        assert_eq!(has_quadruple(&counts).unwrap(), 7);
+    }
+
+    #[test]
+    fn has_quadruple_returns_false_when_no_quadruple() {
+
+        let mut counts: HashMap<i32, i32> = HashMap::new();
+
+        counts.insert(2, 1);
+        counts.insert(3, 1);
+        counts.insert(7, 1);
+        counts.insert(11, 1);
         counts.insert(14, 1);
         counts.insert(4, 1);
         counts.insert(8, 1);
         
-        assert_eq!(has_triple(&counts).unwrap(), 11);
+        assert_eq!(has_quadruple(&counts), None);
     }
+
+    #[test]
+    fn has_two_pair_returns_true_when_two_pair() {
+
+        let mut counts: HashMap<i32, i32> = HashMap::new();
+
+        counts.insert(2, 2);
+        counts.insert(3, 1);
+        counts.insert(10, 2);
+        counts.insert(12, 1);
+        counts.insert(14, 1);
+
+        let mut result = has_two_pair(&counts).unwrap();
+        result.sort();
+        assert_eq!(result, vec![2, 10]);
+    }
+
+    #[test]
+    fn has_two_pair_returns_false_when_one_pair() {
+
+        let mut counts: HashMap<i32, i32> = HashMap::new();
+
+        counts.insert(2, 2);
+        counts.insert(3, 1);
+        counts.insert(10, 1);
+        counts.insert(12, 1);
+        counts.insert(14, 1);
+        counts.insert(11, 1);
+
+        let result = has_two_pair(&counts);
+
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    fn has_two_pair_returns_false_when_no_pair() {
+
+        let mut counts: HashMap<i32, i32> = HashMap::new();
+
+        counts.insert(2, 1);
+        counts.insert(3, 1);
+        counts.insert(10, 1);
+        counts.insert(12, 1);
+        counts.insert(15, 1);
+        counts.insert(4, 1);
+        counts.insert(8, 1);
+
+        let result = has_two_pair(&counts);
+
+        assert_eq!(result, None);
+    }
+
 }
