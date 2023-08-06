@@ -17,6 +17,8 @@ pub fn calc_hand_value(
         *counts.get_mut(&card.value).unwrap() += 1;
     }
      
+    
+    
     if let Some(val1) = has_triple(&counts) {
         if let Some(val2) = has_pair(&counts) {
             return 500 + cmp::max(val1, val2);
@@ -42,31 +44,38 @@ pub fn calc_hand_value(
     return 0;
 }
 
-pub fn has_straight(hand: &mut Vec<Card>) -> Option<Vec<i32>> {
+pub fn has_straight(hand: &mut Vec<Card>) -> Option<i32> {
 
+    
     hand.sort();
-   
+
     let mut straight: i32 = 0;
 
-    for i in 0..hand.len()-5 {
-        let mut val = 0; 
-        let mut count = 0;
-        let mut high_card = 0;
-        for j in 0..5 {
-            if val == hand[i+j].value {
+    let mut count = 1;
+    let mut previous = 0; 
+
+    for i in 0..hand.len() {
+
+        if previous != 0 {
+            if previous == hand[i].value - 1 {
                 count += 1;
+            } else {
+                count = 1;
             }
-            if val == 0 {
-                val = hand[i+j].value; 
-                count += 1;
-            }
-            val += 1; 
-        }
+        } 
+
         if count >= 5 {
-            straight = high_card;
+            straight = cmp::max(straight, hand[i].value);  
         }
+        
+        previous = hand[i].value;
+
     }
-    
+
+    if straight != 0 {
+        return Some(straight);
+    }
+
     return None;
 }
 
@@ -279,6 +288,22 @@ mod tests {
         let result = has_two_pair(&counts);
 
         assert_eq!(result, None);
+    }
+
+    #[test]
+    fn has_straight_return_true_when_straight() {
+
+        let mut hand = vec![
+            Card {value: 2, suite: "H".to_string()},
+            Card {value: 3, suite: "D".to_string()},
+            Card {value: 4, suite: "C".to_string()},
+            Card {value: 5, suite: "S".to_string()},
+            Card {value: 6, suite: "C".to_string()},
+            Card {value: 11, suite: "D".to_string()},
+            Card {value: 10, suite: "S".to_string()},
+        ];
+
+        assert_eq!(has_straight(&mut hand).unwrap(), 6);
     }
 
 }
